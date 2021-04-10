@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-
-#define maxBufferSize 1000
+#include <unistd.h>
+#include <sys/types.h>
 
 struct printfo
 {
@@ -17,22 +16,24 @@ struct printfo
 
 int main()
 {
-    printf("This is a test for project 1:\n\n");
+    printf("This is a test of fork for project 1:\n\n");
+
+    pid_t pid;
+    pid = fork();
+    if (pid < 0){
+        printf("Fork Failed")
+    }
 
     struct printfo *buffer;
 
     int nr = 0;
 
     buffer = (struct printfo *)malloc(sizeof(struct printfo) * maxBufferSize);
-
-    if (buffer == NULL)
-    {
-        printf("memory allocation failed!\n");
-        exit(1);
-    }
-
     printf("memory allocation secceed!\n");
-    
+
+    // if (buffer == NULL)
+    //     exit(1);
+
     int ret = syscall(356, buffer, &nr);
     printf("system call secceed!\n");
 
