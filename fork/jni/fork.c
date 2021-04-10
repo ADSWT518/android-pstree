@@ -2,57 +2,32 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-struct printfo
-{
-    pid_t parent_pid;       /* process id of parent, set 0 if it has no parent*/
-    pid_t pid;              /* process id */
-    pid_t first_child_pid;  /* pid of youngest child, set 0 if it has no child */
-    pid_t next_sibling_pid; /* pid of older sibling, set 0 if it has no sibling*/
-    long state;             /* current state of process */
-    long uid;               /* user id of process owner */
-    char comm[64];          /* name of program executed */
-    int generation;         /* generation of the process, set 0 if the process is root process  */
-};
-
 int main()
 {
     printf("This is a test of fork for project 1:\n\n");
 
     pid_t pid;
     pid = fork();
-    if (pid < 0){
-        printf("Fork Failed")
+    if (pid < 0)
+    { /* error occurred */
+        printf("Fork Failed\n");
+        return 1;
+    }
+    else if (pid == 0)
+    { /* child process */
+        pid_t childPid = getpid();
+        printf("519021910804 child pid: %d\n", childPid);
+        execl("/data/misc/cs356/mainARM", "mainARM", NULL);
+        // 注意，这里第一个参数是可执行文件的完整路径（包括文件本身），第二个参数不知道是啥qwq感觉没有也行啊但是没有就不会输出任何东西orz
+    }
+    else
+    { /* parent process */
+        wait(NULL);
+        pid_t parentPid = getpid();
+        printf("519021910804 parent pid: %d\n", parentPid);
+        // printf("Child Complete\n");
     }
 
-    struct printfo *buffer;
-
-    int nr = 0;
-
-    buffer = (struct printfo *)malloc(sizeof(struct printfo) * maxBufferSize);
-    printf("memory allocation secceed!\n");
-
-    // if (buffer == NULL)
-    //     exit(1);
-
-    int ret = syscall(356, buffer, &nr);
-    printf("system call secceed!\n");
-
-    int i, j;
-    for (i = 1; i < nr; ++i)
-    {
-        // 从1开始是为了跳过swapper
-        struct printfo p = buffer[i];
-
-        for (j = 1; j < buffer[i].generation; ++j)
-        {
-            // 从1开始是为了跳过swapper带来的tab
-            printf("\t");
-        }
-        printf("%s,%d,%ld,%d,%d,%d,%ld\n", p.comm, p.pid, p.state, p.parent_pid, p.first_child_pid, p.next_sibling_pid, p.uid);
-    }
-
-    printf("Test End!\n\n");
-    free(buffer);
-
-    return ret;
+    // printf("Test End!\n\n");
+    return 0;
 }
