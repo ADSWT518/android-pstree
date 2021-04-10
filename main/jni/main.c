@@ -33,12 +33,14 @@ int main()
     printf("system call secceed!\n");
 
     int i, j;
-    for (i = 0; i < nr; ++i)
+    for (i = 1; i < nr; ++i)
     {
+        // 从1开始是为了跳过swapper
         struct printfo p = buffer[i];
 
-        for (j = 0; j < buffer[i].generation; ++j)
+        for (j = 1; j < buffer[i].generation; ++j)
         {
+            // 从1开始是为了跳过swapper带来的tab
             printf("\t");
         }
         printf("%s,%d,%ld,%d,%d,%d,%ld\n", p.comm, p.pid, p.state, p.parent_pid, p.first_child_pid, p.next_sibling_pid, p.uid);

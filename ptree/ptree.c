@@ -7,6 +7,8 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 #define __NR_hellocall 356
 
+#define notExistFlag 0
+
 static int (*oldcall)(void);
 
 struct printfo
@@ -23,14 +25,36 @@ struct printfo
 
 void storeInfo(struct task_struct *task, struct printfo* p, int generation)
 {
-    (*p).parent_pid = task->parent->pid;
-    (*p).pid = task->pid;
-    (*p).first_child_pid = list_entry(task->children.next, struct task_struct, sibling)->pid;
-    (*p).next_sibling_pid = list_entry(task->children.next->next, struct task_struct, sibling)->pid;
-    (*p).state = task->state;
-    (*p).uid = task->real_cred->uid;
-    strcpy((*p).comm, task->comm);
-    (*p).generation = generation;
+    // 注意判断各种可能的情况！
+    if(task != &init_task){
+        // 注意这里不能用task->parent!=NULL，因为init_task的parent并非空指针，而是指向它自己！
+        // 具体参见linux kernel v5.11.12 的 /init/init_task.c#L107
+        p->parent_pid = task->parent->pid;
+
+        if(task->sibling.next != &(task->parent->children)){
+            // 判断依据：当一个进程没有下一个兄弟进程时，它的sibling.next会指向父进程的children成员
+            p->next_sibling_pid = list_entry(task->sibling.next, struct task_struct, sibling)->pid;
+            // 这里next_sibling_pid记录的是它自己的next sibling，而不是第一个子进程的next sibling
+        }else{
+            p->next_sibling_pid = notExistFlag;
+        }
+
+    }else{
+        p->parent_pid = notExistFlag;
+        p->next_sibling_pid = notExistFlag; // 没有parent则不可能有sibling
+    }
+    
+    if(!list_empty(&task->children)){
+        p->first_child_pid = list_entry(task->children.next, struct task_struct, sibling)->pid;
+    }else{
+        p->first_child_pid = notExistFlag;
+    }
+
+    p->pid = task->pid;
+    p->state = task->state;
+    p->uid = task->real_cred->uid;
+    strcpy(p->comm, task->comm);
+    p->generation = generation;
 }
 
 
@@ -52,7 +76,7 @@ void dfs(struct task_struct *task, struct printfo *buf, int *nr, int generation)
         // 而list_entry的第三个参数表示第一个参数在其宿主结构体中的身份
         // printk(KERN_INFO "pid:%d, task_name:%s\n", chd_task->pid, chd_task->comm);
 
-        dfs(chd_task, buf, nr, ++generation);
+        dfs(chd_task, buf, nr, generation+1);
     }
 }
 
