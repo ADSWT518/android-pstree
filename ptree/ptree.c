@@ -1,3 +1,23 @@
+/*****************************************************************************
+File name: ptree.c
+Description: 
+    This file implements a system call called "ptree", which can print the 
+    process tree in DFS order. And it use tabs to indent children with respect 
+    to their parents. The syscall number of it is 356.
+Author: ADSWT518
+Version: 1.0
+Date: 2021.4.10
+Function list:
+1. static int ptree(struct printfo *buf, int *nr)
+    This is the main function of the system call.
+2. void dfs(struct task_struct *task, struct printfo *buf, int *nr, int generation)
+    This function implements dfs of process tree.
+3. void storeInfo(struct task_struct *task, struct printfo *p, int generation)
+    This function is used to copy the infomation of a process to an instance of 
+    struct printfo.
+Other functions are universal functions in system call implementation.
+*****************************************************************************/
+
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
@@ -5,7 +25,7 @@
 #include <linux/unistd.h>
 #include <linux/uaccess.h>
 #include <linux/slab.h>
-MODULE_LICENSE("Dual BSD/GPL");
+MODULE_LICENSE("Dual MIT/GPL");
 
 #define __NR_hellocall 356
 

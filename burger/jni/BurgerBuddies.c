@@ -1,3 +1,26 @@
+/*****************************************************************************
+File name: BurgerBuddies.c
+Description: 
+    This file implements a simulation of process scheduling. It will get 4 
+    input, the number of cooks, cashiers, customers, and the size of the rack.
+    and it will simulate the situation of a burger restaurant.
+Author: ADSWT518
+Version: 1.0
+Date: 2021.4.10
+Fucntion list:
+1. void *cook(void *cookId)
+    Funtion of the cook thread.
+2. void *cashier(void *cashierId)
+    Function of the cashier thread.
+3. void *customer(void *customerId)
+    Function of the customer thread.
+4. void *killer()
+    Function of the killer thread, used to end the cook thread and cashier thread.
+5. void thread_exit_handler()
+    This function will be called when the cook thread and cashier thread receive
+    a signal SIGQUIT, and finish the thread.
+*****************************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
